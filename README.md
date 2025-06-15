@@ -27,6 +27,9 @@ Define an array of struct command_t objects in your application that
 define the custom commands and their associated methods.
 
 ```c
+// include pico-command-line header file to define types and functions
+#include "pico-command-line.h"
+
 // help message
 const char * HELP = 
   "Pi Pico Basic Command Prompt - A simple 80 character command\n"
