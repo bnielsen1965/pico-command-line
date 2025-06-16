@@ -17,11 +17,17 @@ to execute commandProcessor and picoConsole as tasks.
 
 See the example directory for an example of how to use the pico-command-line submodule.
 
+
+### git submodule
+
 Use git to add pico-command-line as a submodule to your project.
 
 > git submodule add https://github.com/bnielsen1965/pico-command-line.git
 
 > git submodule update --init
+
+
+### define commands
 
 Define an array of struct command_t objects in your application that 
 define the custom commands and their associated methods.
@@ -57,6 +63,35 @@ struct command_t commands[] = {
 };
 ```
 
+The format of the command functions referenced in each command_t struct is as follows: *void commandFunction(char *cmdLine);*
+
+Note that the command line is passed as a parameter to each function. The functions are responsible for parsing the command line and performing the appropriate action based on the command.
+
+i.e. The commandLED function may look something like the following:
+```c
+// command led
+void commandLED (char *cmdLine) {
+  // duplicate command line to buffer
+  char buffer[COMMAND_LINE_LEN];
+  strncpy(buffer, cmdLine, COMMAND_LINE_LEN);
+  buffer[COMMAND_LINE_LEN - 1] = '\0';
+  // split buffer with strtok
+  char *token = strtok(buffer, " ");
+  token = strtok(NULL, " ");
+  // check token
+  if (strcmp(token, "on") == 0) {
+    printf("LED ON\n");
+    gpio_put(LED_PIN, 1);
+  } else if (strcmp(token, "off") == 0) {
+    gpio_put(LED_PIN, 0);
+  } else {
+    printf("Invalid LED command. Use 'on' or 'off'.\n");
+  }
+}
+```
+
+
+### initialize application
 
 In your applications initialization call the initPicoStdio() method 
 to initialize stdio for serial communication. And call the initCommandProcessor()
@@ -76,6 +111,8 @@ void init () {
 }
 ```
 
+
+### execute command processes
 
 Lastly add the commandProcessor function to an available core or as a task if you are using FreeRTOS.
 And call the picoConsole() function in your main application loop or another task if you are using FreeRTOS.
